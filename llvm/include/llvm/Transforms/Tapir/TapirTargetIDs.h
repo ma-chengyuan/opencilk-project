@@ -21,12 +21,16 @@ namespace llvm {
 enum class TapirTargetID {
   None,     // Perform no lowering
   Serial,   // Lower to serial projection
-  Cheetah,  // Lower to the Cheetah ABI
-  Cilk,     // Lower to the Cilk Plus ABI
+  Cuda,     // Lower to Cuda ABI
+  Hip,      // Lower to the Hip (AMD GPU) ABI
   Lambda,   // Lower to generic Lambda ABI
   OMPTask,  // Lower to OpenMP task ABI
   OpenCilk, // Lower to OpenCilk ABI
-  Qthreads, // Lower to Qthreads
+  OpenMP,   // Lower to OpenMP (TODO: Needs to be updated)
+  Qthreads, // Lower to Qthreads (TODO: Needs to be updated)
+  Realm,    // Lower to Realm (TODO: Needs to be updated)
+  Cheetah,  // Lower to the Cheetah ABI
+  Cilk,     // Lower to the Cilk Plus ABI
   Last_TapirTargetID
 };
 

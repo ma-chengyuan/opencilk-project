@@ -19,6 +19,7 @@
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/Compiler.h"
+#include "llvm/Transforms/Tapir/TapirTargetIDs.h"
 
 namespace llvm {
 class BasicBlock;
@@ -93,6 +94,9 @@ struct LoopAttributes {
 
   /// Value for tapir.loop.spawn.strategy metadata.
   LSStrategy SpawnStrategy;
+
+  /// Value for tapir.loop.target metadata.
+  std::optional<llvm::TapirTargetID> LoopTarget;
 };
 
 /// Information used when generating a structured loop.
@@ -314,6 +318,11 @@ public:
 
   /// Set the Tapir-loop grainsize for the next loop pushed.
   void setTapirGrainsize(unsigned C) { StagedAttrs.TapirGrainsize = C; }
+
+  /// Set the Tapir loop target
+  void setLoopTarget(std::optional<llvm::TapirTargetID> LT) {
+    StagedAttrs.LoopTarget = LT;
+  }
 
   /// Returns true if there is LoopInfo on the stack.
   bool hasInfo() const { return !Active.empty(); }

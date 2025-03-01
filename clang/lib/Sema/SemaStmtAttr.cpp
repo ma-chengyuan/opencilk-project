@@ -644,6 +644,34 @@ static Attr *handleHLSLLoopHintAttr(Sema &S, Stmt *St, const ParsedAttr &A,
   return ::new (S.Context) HLSLLoopHintAttr(S.Context, A, UnrollFactor);
 }
 
+static Attr *handleTapirTargetAttr(Sema &S, Stmt *St, const ParsedAttr &A,
+                                   SourceRange Range) {
+  StringRef targetStr;
+  SourceLocation argLoc;
+  S.checkStringLiteralArgumentAttr(A, 0, targetStr, &argLoc);
+  if (!S.checkStringLiteralArgumentAttr(A, 0, targetStr, &argLoc)) {
+    S.Diag(A.getLoc(), diag::err_tapir_target_unknown);
+    return nullptr;
+  }
+
+  TapirTargetAttr::TapirTargetAttrTy tapirTK;
+  if (!TapirTargetAttr::ConvertStrToTapirTargetAttrTy(targetStr, tapirTK)) {
+    S.Diag(A.getLoc(), diag::err_tapir_target_unknown) << targetStr << argLoc;
+    return nullptr;
+  }
+
+  // We only support a limited range of statements.  Make sure we are
+  // dealing with one of them -- if not return an error.
+  //
+  // The attribute is not currently supported on spawn and sync statements.
+  //
+  if (St->getStmtClass() == Stmt::CilkForStmtClass) {
+    return ::new (S.Context) TapirTargetAttr(S.Context, A, tapirTK);
+  }
+  S.Diag(A.getLoc(), diag::err_tapir_target_attr_unsupported_stmt);
+  return nullptr;
+}
+
 static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const ParsedAttr &A,
                                   SourceRange Range) {
   if (A.isInvalid() || A.getKind() == ParsedAttr::IgnoredAttribute)
@@ -698,6 +726,8 @@ static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const ParsedAttr &A,
     return handleCodeAlignAttr(S, St, A);
   case ParsedAttr::AT_MSConstexpr:
     return handleMSConstexprAttr(S, St, A, Range);
+  case ParsedAttr::AT_TapirTarget:
+    return handleTapirTargetAttr(S, St, A, Range);
   default:
     // N.B., ClangAttrEmitter.cpp emits a diagnostic helper that ensures a
     // declaration attribute is not written on a statement, but this code is

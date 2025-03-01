@@ -4109,6 +4109,33 @@ def InitSeg : Attr {
   }];
 }
 
+def TapirTarget : StmtAttr {
+  let Spellings = [CXX11<"tapir","target">];
+
+  // FIXME KITSUNE: The target attribute is currently set to be valid on all
+  // statements because of the need to add this to Kokkos. We should either:
+  //
+  //   - Remove the Forall statement from the subject list and have it apply to
+  //     all statements and check when parsing that it is on a statement that
+  //     we actually care about.
+  //
+  //   - Or, and we should prefer this if possible, identify exactly what the
+  //     Kokkos construct is and add just that statement class to this subject
+  //     list.
+  //
+  let Subjects = SubjectList<[CilkForStmt, Stmt],
+                             ErrorDiag, "'parallel' statements">;
+  let Args = [
+    EnumArgument<"TapirTargetAttrType", "TapirTargetAttrTy", /*is_string=*/ true,
+                 ["none", "serial", "cuda", "hip", "opencilk", "openmp",
+                  "qthreads", "realm"],
+                 ["None", "Serial", "Cuda", "Hip", "OpenCilk", "OpenMP",
+                  "Qthreads", "Realm"],
+                 0>
+  ];
+  let Documentation = [TapirRTDocs];
+}
+
 def LoopHint : Attr {
   /// #pragma clang loop <option> directive
   /// vectorize: vectorizes loop operations if State == Enable.

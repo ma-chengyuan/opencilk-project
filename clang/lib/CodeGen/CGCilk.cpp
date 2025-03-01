@@ -882,8 +882,53 @@ template <typename LoopStmt> static bool hasEmptyLoopBody(const LoopStmt &S) {
   return false;
 }
 
+// If a tapir target attribute exists, it will override the tapir target
+// specified on the command line - if any. If a tapir target attribute does not
+// exist and one was specified on the command line, that will be returned.
+std::optional<llvm::TapirTargetID>
+GetTapirTargetAttr(ArrayRef<const Attr *> Attrs, CodeGenModule &CGM) {
+  // FIXME KITSUNE: This will check for the first occurrence of the tapir target
+  // attribute and break immediately if it finds it. Is this what we actually
+  // want?
+  for (auto curAttr : Attrs) {
+    if (curAttr->getKind() == attr::TapirTarget) {
+      switch (cast<const TapirTargetAttr>(curAttr)->getTapirTargetAttrType()) {
+      case TapirTargetAttr::None:
+        return llvm::TapirTargetID::None;
+      case TapirTargetAttr::Serial:
+        return llvm::TapirTargetID::Serial;
+      case TapirTargetAttr::Cuda:
+        return llvm::TapirTargetID::Cuda;
+      // TODO: uncomment if want to test on AMD
+      // case TapirTargetAttr::Hip:
+      //   return llvm::TapirTargetID::Hip;
+      case TapirTargetAttr::OpenCilk:
+        return llvm::TapirTargetID::OpenCilk;
+      // case TapirTargetAttr::OpenMP:
+      //   return llvm::TapirTargetID::OpenMP;
+      case TapirTargetAttr::Qthreads:
+        return llvm::TapirTargetID::Qthreads;
+        // case TapirTargetAttr::Realm:
+        //   return llvm::TapirTargetID::Realm;
+      }
+      // We don't put this in a default block in the switch above because it
+      // results in compiler warnings about default blocks in a switch where all
+      // enumeration values are handled. But we want this error in case a new
+      // tapir target is added, but this code is not updated.
+      llvm_unreachable("Tapir target not handled");
+    }
+  }
+  // return CGM.getCodeGenOpts().getTapirTarget();
+  return llvm::TapirTargetID::OpenCilk;
+}
+
 void CodeGenFunction::EmitCilkForStmt(const CilkForStmt &S,
                                       ArrayRef<const Attr *> ForAttrs) {
+  // A forall may have attributes but no tapir target so we can't simply
+  // check if the attributes are empty.
+  std::optional<llvm::TapirTargetID> TT = GetTapirTargetAttr(ForAttrs, CGM);
+  LoopStack.setLoopTarget(TT);
+
   JumpDest LoopExit = getJumpDestInCurrentScope("pfor.end");
 
   PushSyncRegion();

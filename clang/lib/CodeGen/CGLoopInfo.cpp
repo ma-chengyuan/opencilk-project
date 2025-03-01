@@ -539,6 +539,17 @@ void LoopInfo::getTapirLoopProperties(
                                                  Attrs.TapirGrainsize))};
     LoopProperties.push_back(MDNode::get(Ctx, Vals));
   }
+
+  // Setting tapir.loop.target. A target may not have been set and we do not
+  // have a reasonable "default". If we don't have a target, don't add the
+  // metadata.
+  if (Attrs.LoopTarget) {
+    Metadata *Vals[] = {
+        MDString::get(Ctx, "tapir.loop.target"),
+        ConstantAsMetadata::get(ConstantInt::get(llvm::Type::getInt32Ty(Ctx),
+                                                 unsigned(*Attrs.LoopTarget)))};
+    LoopProperties.push_back(MDNode::get(Ctx, Vals));
+  }
 }
 
 void LoopInfo::finish() {

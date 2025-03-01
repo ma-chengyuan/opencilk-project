@@ -1390,6 +1390,10 @@ void TargetLibraryInfoImpl::addTapirTargetLibraryFunctions(
   case TapirTargetID::Lambda:
   case TapirTargetID::OMPTask:
   case TapirTargetID::Qthreads:
+  case TapirTargetID::Cuda:
+  case TapirTargetID::Hip:
+  case TapirTargetID::OpenMP:
+  case TapirTargetID::Realm:
   case TapirTargetID::Last_TapirTargetID:
     break;
   }

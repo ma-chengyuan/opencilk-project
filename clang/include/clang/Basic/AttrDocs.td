@@ -48,6 +48,42 @@ This page lists the attributes currently supported by Clang.
 }];
 }
 
+def KitsuneDocs : DocumentationCategory<"Kitsune Attributes"> {
+  let Content = [{
+Tapir and Kitsune introduce custom C++ attributres that let developer
+control behaviors at the source code level vs. only through command line
+arguments.
+  }];
+}
+
+def TapirRTDocs : Documentation {
+  let Category = KitsuneDocs;
+  let Content = [{
+
+**Experimental**
+
+The kitsune/tapir runtime target attribute `rt_target` let's developers target a
+specific runtime at the source level vs. using a command line argument to
+apply the target to all constructs.  The current target runtime are:
+
+- cilk     : Cilk runtime system.
+- cuda     : Nvidia's cuda runtime.
+- hip      : AMD's (cuda-ish) hip runtime.
+- libomp   : The OpenMP runtime
+- qthreads : The Qthreads library
+- realm    : The Realm runtime (lower level of the Legion Programming System)
+- rocm     : AMD's Rocm runtime.
+- zero     : Intel's Level Zero runtime.
+
+Example:
+
+.. code-block:: c++
+
+  [[kitsune:rt_target("cilk")]]
+  forall(...) {
+  }];
+}
+
 def SectionDocs : Documentation {
   let Category = DocCatVariable;
   let Content = [{

@@ -12722,4 +12722,10 @@ def err_acc_loop_spec_conflict
 // AMDGCN builtins diagnostics
 def err_amdgcn_global_load_lds_size_invalid_value : Error<"invalid size value">;
 def note_amdgcn_global_load_lds_size_valid_value : Note<"size must be 1, 2, or 4">;
+
+// Tapir target attribute
+def err_tapir_target_attr_unsupported_stmt: Error<
+  "tapir target attribute on unsupported statement">;
+def err_tapir_target_unknown: Error<
+  "unknown tapir target">;
 } // end of sema component.
