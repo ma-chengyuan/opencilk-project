@@ -3730,7 +3730,7 @@ void CompilerInvocationBase::GenerateLangArgs(const LangOptions &Opts,
     GenerateArg(Consumer, OPT_mignore_xcoff_visibility);
 
   if (Opts.getCilk() == LangOptions::Cilk_opencilk)
-    GenerateArg(Consumer, OPT_fopencilk);
+    GenerateArg(Consumer, Opts.CilkOptions.has(CilkOpt_Kitsune) ? OPT_fopencilk_kitsune : OPT_fopencilk);
   if (Opts.getCilk() == LangOptions::Cilk_plus)
     GenerateArg(Consumer, OPT_fcilkplus);
   if (Opts.CilkOptions.has(CilkOpt_Pedigrees))
@@ -4154,6 +4154,11 @@ bool CompilerInvocation::ParseLangArgs(LangOptions &Opts, ArgList &Args,
       Opts.CilkOptions.set(CilkOpt_Pedigrees, true);
   } else if (CilkPlus) {
     Opts.setCilk(LangOptions::Cilk_plus);
+  }
+  if (Args.hasArg(OPT_fopencilk_kitsune)) {
+    // This allows reducer operations to be emitted in the IR.
+    Opts.setCilk(LangOptions::Cilk_opencilk);
+    Opts.CilkOptions.set(CilkOpt_Kitsune, true);
   }
 
   if (Opts.getCilk() != LangOptions::Cilk_none && Opts.ObjC)

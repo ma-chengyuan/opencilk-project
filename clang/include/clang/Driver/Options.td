@@ -3337,6 +3337,9 @@ def fcilkplus : Flag<["-"], "fcilkplus">, Group<f_Group>,
 def fopencilk : Flag<["-"], "fopencilk">, Group<f_Group>,
   Visibility<[ClangOption, CC1Option]>,
   HelpText<"Enable OpenCilk extensions">;
+def fopencilk_kitsune : Flag<["-"], "fopencilk-kitsune">, Group<f_Group>,
+  Visibility<[ClangOption, CC1Option]>,
+  HelpText<"Enable OpenCilk compilation for Kitsune">;
 def static_libopencilk : Flag<["-"], "static-libopencilk">;
 def opencilk_resource_dir_EQ : Joined<["--"], "opencilk-resource-dir=">,
   Flags<[NoXarchOption]>,

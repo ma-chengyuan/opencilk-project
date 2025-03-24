@@ -6633,6 +6633,7 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
   Args.AddLastArg(CmdArgs, options::OPT_fcilkplus);
   Args.AddLastArg(CmdArgs, options::OPT_fopencilk);
   Args.AddLastArg(CmdArgs, options::OPT_ftapir_EQ);
+  Args.AddLastArg(CmdArgs, options::OPT_fopencilk_kitsune);
   if (Args.hasArg(options::OPT_fcilkplus) ||
       Args.hasArg(options::OPT_fopencilk) ||
       Args.hasArg(options::OPT_ftapir_EQ)) {
