@@ -672,6 +672,29 @@ static Attr *handleTapirTargetAttr(Sema &S, Stmt *St, const ParsedAttr &A,
   return nullptr;
 }
 
+static Attr *handleTapirDeferredSyncAttr(Sema &S, Stmt *St,
+                                         const ParsedAttr &A) {
+  if (St->getStmtClass() == Stmt::CilkForStmtClass) {
+    return ::new (S.Context) TapirDeferredSyncAttr(S.Context, A);
+  }
+  S.Diag(A.getLoc(), diag::err_tapir_target_attr_unsupported_stmt);
+  return nullptr;
+}
+
+static Attr *handleTapirGrainSizeAttr(Sema &S, Stmt *St, const ParsedAttr &A,
+                                      SourceRange Range) {
+  if (St->getStmtClass() == Stmt::CilkForStmtClass) {
+    Expr *E = A.getArgAsExpr(0);
+    llvm::APSInt ValueAPS;
+    S.CheckLoopHintExpr(E, Range.getBegin(), false);
+    S.VerifyIntegerConstantExpression(E, &ValueAPS);
+    return ::new (S.Context)
+        TapirGrainSizeAttr(S.Context, A, ValueAPS.getExtValue());
+  }
+  S.Diag(A.getLoc(), diag::err_tapir_target_attr_unsupported_stmt);
+  return nullptr;
+}
+
 static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const ParsedAttr &A,
                                   SourceRange Range) {
   if (A.isInvalid() || A.getKind() == ParsedAttr::IgnoredAttribute)
@@ -728,6 +751,10 @@ static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const ParsedAttr &A,
     return handleMSConstexprAttr(S, St, A, Range);
   case ParsedAttr::AT_TapirTarget:
     return handleTapirTargetAttr(S, St, A, Range);
+  case ParsedAttr::AT_TapirDeferredSync:
+    return handleTapirDeferredSyncAttr(S, St, A);
+  case ParsedAttr::AT_TapirGrainSize:
+    return handleTapirGrainSizeAttr(S, St, A, Range);
   default:
     // N.B., ClangAttrEmitter.cpp emits a diagnostic helper that ensures a
     // declaration attribute is not written on a statement, but this code is

@@ -459,11 +459,10 @@ LoopAttributes::LoopAttributes(bool IsParallel)
       UnrollAndJamEnable(LoopAttributes::Unspecified),
       VectorizePredicateEnable(LoopAttributes::Unspecified), VectorizeWidth(0),
       VectorizeScalable(LoopAttributes::Unspecified), InterleaveCount(0),
-      UnrollCount(0), UnrollAndJamCount(0),
-      TapirGrainsize(0),
+      UnrollCount(0), UnrollAndJamCount(0), TapirGrainsize(0),
       DistributeEnable(LoopAttributes::Unspecified), PipelineDisabled(false),
       PipelineInitiationInterval(0), CodeAlign(0), MustProgress(false),
-      SpawnStrategy(LoopAttributes::Sequential) {}
+      SpawnStrategy(LoopAttributes::Sequential), DeferredSync(false) {}
 
 void LoopAttributes::clear() {
   IsParallel = false;
@@ -539,7 +538,6 @@ void LoopInfo::getTapirLoopProperties(
                                                  Attrs.TapirGrainsize))};
     LoopProperties.push_back(MDNode::get(Ctx, Vals));
   }
-
   // Setting tapir.loop.target. A target may not have been set and we do not
   // have a reasonable "default". If we don't have a target, don't add the
   // metadata.
@@ -548,6 +546,12 @@ void LoopInfo::getTapirLoopProperties(
         MDString::get(Ctx, "tapir.loop.target"),
         ConstantAsMetadata::get(ConstantInt::get(llvm::Type::getInt32Ty(Ctx),
                                                  unsigned(*Attrs.LoopTarget)))};
+    LoopProperties.push_back(MDNode::get(Ctx, Vals));
+  }
+  if (Attrs.DeferredSync) {
+    Metadata *Vals[] = {MDString::get(Ctx, "tapir.loop.deferred_sync"),
+                        ConstantAsMetadata::get(
+                            ConstantInt::get(llvm::Type::getInt1Ty(Ctx), 1))};
     LoopProperties.push_back(MDNode::get(Ctx, Vals));
   }
 }

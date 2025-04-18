@@ -4136,6 +4136,20 @@ def TapirTarget : StmtAttr {
   let Documentation = [TapirRTDocs];
 }
 
+def TapirDeferredSync : StmtAttr {
+  let Spellings = [CXX11<"tapir","deferred_sync">];
+  let Subjects = SubjectList<[CilkForStmt], ErrorDiag, "'parallel for' statements">;
+  let Args = [];
+  let Documentation = [TapirRTDocs];
+}
+
+def TapirGrainSize : StmtAttr {
+  let Spellings = [CXX11<"tapir","grain_size">];
+  let Subjects = SubjectList<[CilkForStmt], ErrorDiag, "'parallel for' statements">;
+  let Args = [UnsignedArgument<"GrainSize">];
+  let Documentation = [TapirRTDocs];
+}
+
 def LoopHint : Attr {
   /// #pragma clang loop <option> directive
   /// vectorize: vectorizes loop operations if State == Enable.

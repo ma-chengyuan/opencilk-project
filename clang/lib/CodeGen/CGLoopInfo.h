@@ -97,6 +97,9 @@ struct LoopAttributes {
 
   /// Value for tapir.loop.target metadata.
   std::optional<llvm::TapirTargetID> LoopTarget;
+
+  /// Value for tapir.loop.deferred_sync metadata.
+  bool DeferredSync;
 };
 
 /// Information used when generating a structured loop.
@@ -323,6 +326,9 @@ public:
   void setLoopTarget(std::optional<llvm::TapirTargetID> LT) {
     StagedAttrs.LoopTarget = LT;
   }
+
+  /// Set the Tapir deferred sync
+  void setDeferredSync(bool DS) { StagedAttrs.DeferredSync = DS; }
 
   /// Returns true if there is LoopInfo on the stack.
   bool hasInfo() const { return !Active.empty(); }

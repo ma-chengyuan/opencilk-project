@@ -928,6 +928,14 @@ void CodeGenFunction::EmitCilkForStmt(const CilkForStmt &S,
   // check if the attributes are empty.
   std::optional<llvm::TapirTargetID> TT = GetTapirTargetAttr(ForAttrs, CGM);
   LoopStack.setLoopTarget(TT);
+  for (auto *curAttr : ForAttrs) {
+    if (curAttr->getKind() == attr::TapirDeferredSync) {
+      LoopStack.setDeferredSync(true);
+    } else if (curAttr->getKind() == attr::TapirGrainSize) {
+      LoopStack.setTapirGrainsize(
+          cast<TapirGrainSizeAttr>(curAttr)->getGrainSize());
+    }
+  }
 
   JumpDest LoopExit = getJumpDestInCurrentScope("pfor.end");
 
